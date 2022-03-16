@@ -1,7 +1,7 @@
 {
   "name": "lannister-pay",
   "version": "1.0.0",
-  "description": "",
+  "description": "Lannister Pay is a Nigerian Naira (NGN) implementation of a fee processing service for a fictional Payment Processor.",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon bin/www",
@@ -14,7 +14,8 @@
     "body-parser": "^1.19.2",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "redis": "^4.0.4"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"
