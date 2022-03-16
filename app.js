@@ -1,14 +1,18 @@
 require("dotenv").config();
-const express = require('express');
-const logger = require('morgan');
-const bodyParser = require('body-parser');
-const app = express();
+const express = require('express'),
+			logger = require('morgan'),
+			bodyParser = require('body-parser'),
+			app = express();
+
+const RedisClient = require('./lib/redis');
+
+RedisClient.connect().then(() => console.log("Redis connected successfully!!"));
+
+const origin = `${process.env.CORS_ORIGIN}` !== "undefined" ? `${process.env.CORS_ORIGIN}` : "*";
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-
-const origin = `${process.env.CORS_ORIGIN}` !== "undefined" ? `${process.env.CORS_ORIGIN}` : "*";
 
 app.use(function(_, res, next) {
   res.header("Access-Control-Allow-Origin", `${origin}`);
@@ -20,6 +24,6 @@ app.use(function(_, res, next) {
   next();
 });
 
-require('./server/routes');
+require('./server/routes')(app);
 
 module.exports = app;
