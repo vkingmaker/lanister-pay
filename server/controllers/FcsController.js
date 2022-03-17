@@ -39,4 +39,32 @@ module.exports = class FcsController {
       );
     }
   }
+
+    /**
+   * Compute Transaction Fees
+   * @param {Object} _ Http Request object
+   * @param {Object} res Http Response object
+   * @returns {ApiResponser} formatted success or error response
+   */
+  static async computeTransactionFee(req, res) {
+    try {
+      const { Amount, Customer: { BearsFee }, Currency, PaymentEntity } = req.body;
+
+      const transactionFee = await FscService.compute({ PaymentEntity, BearsFee, Currency, Amount });
+
+      return ApiResponser.successResponse(
+        res, 
+        transactionFee, 
+        undefined
+      );
+
+    } catch (error) {
+      const statusCode = error.statusCode || Response.HTTP_INTERNAL_SERVER_ERROR;
+      return ApiResponser.errorResponse(
+        res, 
+        error.message, 
+        statusCode
+      );
+    }
+  }
 }
