@@ -11,19 +11,19 @@ module.exports = class ComputeService {
    */
   static async calculate(mostSpecificSpec, { Amount, BearsFee }) {
     try {	
-			const [ AppliedFeeID ] = mostSpecificSpec.trim().split(" "),
+			const [ AppliedFeeID ] = mostSpecificSpec.split(" "),
 						[, feeType, feeValue ] =  mostSpecificSpec.substr(mostSpecificSpec.indexOf(":")+1).trim().split(" ");
 			
 			let AppliedFeeValue;
 
 			switch(feeType) {
 				case PERC: {
-					AppliedFeeValue = Math.ceil(parseFloat(feeValue/100 * +Amount));
+					AppliedFeeValue = parseFloat((feeValue/100 * +Amount).toFixed(3));
 					break;
 				}
 				case FLAT_PERC: {
 					const [flat, perc] = feeValue.split(":");
-					AppliedFeeValue = Math.ceil(parseFloat(((perc/100) * Amount)+ +flat));
+					AppliedFeeValue = parseFloat((((perc/100) * Amount)+ +flat).toFixed(3));
 					break;
 				}
 				
@@ -36,7 +36,7 @@ module.exports = class ComputeService {
 			const ChargeAmount = Boolean(BearsFee) ? (Amount + AppliedFeeValue): Amount,
 						SettlementAmount = ChargeAmount - AppliedFeeValue;
 			
-			return { AppliedFeeID, AppliedFeeValue, ChargeAmount, SettlementAmount}
+			return { AppliedFeeID, AppliedFeeValue, ChargeAmount, SettlementAmount }
     } catch (error) {
       throw error;
     }
