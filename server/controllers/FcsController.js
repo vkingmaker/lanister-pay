@@ -28,7 +28,8 @@ module.exports = class FcsController {
       return ApiResponser.successResponse(
         res, 
         undefined, 
-        'ok'
+        'ok',
+        Response.HTTP_CREATED
       );
 
     } catch (error) {
