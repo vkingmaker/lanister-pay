@@ -1,4 +1,6 @@
 require('dotenv').config();
+const Parse = require('fast-json-parse');
+
 const Response = require("../../../utils/constants/Response"),
 	RedisClient = require("../../../lib/redis"),
 	ComputeService = require("../ComputeService");
@@ -34,7 +36,9 @@ module.exports = class FcsService {
 
 			
 			for(const type in availableTypesOfPayment) {
-				RedisClient.set(`${type}`.toLowerCase(), JSON.stringify(availableTypesOfPayment[type]), err => {
+				RedisClient.set(
+					`${type}`.toLowerCase(),
+					JSON.stringify(availableTypesOfPayment[type]), err => {
 					if (err) throw err;
 				});
 			}
@@ -55,7 +59,7 @@ module.exports = class FcsService {
 			ID,
 			Issuer,
 			Brand,
-			Number,
+			Number: number,
 			SixID,
 			Type: UsersPayment,
 			Country 
@@ -67,7 +71,12 @@ module.exports = class FcsService {
 		try {
 
 			const LOCAL_COUNTRY = process.env.LOCAL_COUNTRY ? process.env.LOCAL_COUNTRY : 'NG';
-
+			
+			if (!['credit-card', 'bank-account', 'ussd', 'wallet-id', 'debit-card'].includes(`${UsersPayment}`.toLowerCase())) throw {
+				message: `The fee entity ${UsersPayment} is not supported`,
+				statusCode: Response.HTTP_UNPROCESSABLE_ENTITY
+			};
+			
 			return RedisClient.multi().get('currency').get(`${UsersPayment}`.toLowerCase()).get("*").exec().then(res => {
 				let [allowedCurrency, paymentTypes, genericPaymentType] = res;
 				paymentTypes = JSON.parse(paymentTypes);
@@ -76,34 +85,34 @@ module.exports = class FcsService {
 					message: `No fee configuration for ${Currency} transactions`,
 					statusCode: Response.HTTP_UNPROCESSABLE_ENTITY
 				};
-
+				
 				let mostSpecificSpec;
-				const applicableSpecs = paymentTypes.filter(payment => {
-					const [, , , feeEntity] = payment.trim().split(":")[0].split(" ");
+				let applicableSpecs = paymentTypes?.filter(payment => {
+					const [, , , feeEntity] = payment.trim().split(":")[0].split` `;
 					const entityProperty = feeEntity
-						.substr(feeEntity.indexOf("("))
-						.trim()
-						.split("")
-						.slice(1, -1)
-						.join("");
-
-					return [ID, Issuer, Brand, Number, SixID].includes(entityProperty) || entityProperty === "*";
-
-				}).filter(spec => {
+					.substring(feeEntity.indexOf("("))
+					.trim()
+					.split("")
+					.slice(1, -1)
+					.join("");
+					
+					return ([ID, Issuer, Brand, SixID].includes(entityProperty) || number.includes(entityProperty) || entityProperty === "*");
+					
+				});
+				
+				if (!applicableSpecs?.length) applicableSpecs = JSON.parse(genericPaymentType);
+				
+				applicableSpecs = applicableSpecs?.filter(spec => {
 					const [, , feeLocale] = spec.trim().split(":")[0].split(" ");
 					const locale = Country === LOCAL_COUNTRY ? "LOCL" : "INTL"
-					return feeLocale === locale;
+					return feeLocale === locale || feeLocale === "*";
 				});
-
-
-				if (!applicableSpecs.length) mostSpecificSpec = JSON.parse(genericPaymentType)[0];
-				else {
-					for (const spec of applicableSpecs) {
-						let numberOfAskteris = -1;
-						if ((spec.split("*").length - 1) > numberOfAskteris) {
-							numberOfAskteris = spec.split("*").length - 1;
-							mostSpecificSpec = spec;
-						}
+				
+				for (const spec of applicableSpecs) {
+					let numberOfAskteris = -1;
+					if ((spec.split("*").length - 1) > numberOfAskteris) {
+						numberOfAskteris = spec.split("*").length - 1;
+						mostSpecificSpec = spec;
 					}
 				}
 				
