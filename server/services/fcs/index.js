@@ -1,9 +1,7 @@
 require('dotenv').config();
-const Parse = require('fast-json-parse');
 
 const Response = require("../../../utils/constants/Response"),
-	RedisClient = require("../../../lib/redis"),
-	ComputeService = require("../ComputeService");
+			ComputeService = require("../ComputeService");
 
 /**
  * Handles every business logic that concerns Fee configuration spec
@@ -30,17 +28,10 @@ module.exports = class FcsService {
 				}
 			}
 
-			RedisClient.set('currency', JSON.stringify(allowedCurrencies), err => {
-				if (err) throw err;
-			});
+			global.currency = allowedCurrencies;
 
-			
-			for(const type in availableTypesOfPayment) {
-				RedisClient.set(
-					`${type}`.toLowerCase(),
-					JSON.stringify(availableTypesOfPayment[type]), err => {
-					if (err) throw err;
-				});
+			for (const type in availableTypesOfPayment) {
+				global[`${type}`.toLowerCase()] = availableTypesOfPayment[type];
 			}
 
 			return { allowedCurrencies, availableTypesOfPayment };
@@ -62,63 +53,61 @@ module.exports = class FcsService {
 			Number: number,
 			SixID,
 			Type: UsersPayment,
-			Country 
+			Country
 		},
 		BearsFee,
 		Currency,
-		Amount 
+		Amount
 	}) {
 		try {
 
 			const LOCAL_COUNTRY = process.env.LOCAL_COUNTRY ? process.env.LOCAL_COUNTRY : 'NG';
-			
+
 			if (!['credit-card', 'bank-account', 'ussd', 'wallet-id', 'debit-card'].includes(`${UsersPayment}`.toLowerCase())) throw {
 				message: `The fee entity ${UsersPayment} is not supported`,
 				statusCode: Response.HTTP_UNPROCESSABLE_ENTITY
 			};
-			
-			return RedisClient.multi().get('currency').get(`${UsersPayment}`.toLowerCase()).get("*").exec().then(res => {
-				let [allowedCurrency, paymentTypes, genericPaymentType] = res;
-				paymentTypes = JSON.parse(paymentTypes);
 
-				if (!JSON.parse(allowedCurrency).includes(`${Currency}`)) throw {
-					message: `No fee configuration for ${Currency} transactions`,
-					statusCode: Response.HTTP_UNPROCESSABLE_ENTITY
-				};
-				
-				let mostSpecificSpec;
-				let applicableSpecs = paymentTypes?.filter(payment => {
-					const [, , , feeEntity] = payment.trim().split(":")[0].split` `;
-					const entityProperty = feeEntity
+			const allowedCurrency = global.currency,
+						paymentTypes = global[`${UsersPayment}`.toLowerCase()],
+						genericPaymentType = global['*'];
+
+			if (!allowedCurrency.includes(`${Currency}`)) throw {
+				message: `No fee configuration for ${Currency} transactions`,
+				statusCode: Response.HTTP_UNPROCESSABLE_ENTITY
+			};
+
+			let mostSpecificSpec;
+			let applicableSpecs = paymentTypes?.filter(payment => {
+				const [, , , feeEntity] = payment.trim().split(":")[0].split` `;
+				const entityProperty = feeEntity
 					.substring(feeEntity.indexOf("("))
 					.trim()
 					.split("")
 					.slice(1, -1)
 					.join("");
-					
-					return ([ID, Issuer, Brand, SixID].includes(entityProperty) || number.includes(entityProperty) || entityProperty === "*");
-					
-				});
-				
-				if (!applicableSpecs?.length) applicableSpecs = JSON.parse(genericPaymentType);
-				
-				applicableSpecs = applicableSpecs?.filter(spec => {
-					const [, , feeLocale] = spec.trim().split(":")[0].split(" ");
-					const locale = Country === LOCAL_COUNTRY ? "LOCL" : "INTL"
-					return feeLocale === locale || feeLocale === "*";
-				});
-				
-				for (const spec of applicableSpecs) {
-					let numberOfAskteris = -1;
-					if ((spec.split("*").length - 1) > numberOfAskteris) {
-						numberOfAskteris = spec.split("*").length - 1;
-						mostSpecificSpec = spec;
-					}
-				}
-				
-				return ComputeService.calculate(mostSpecificSpec, { Amount, BearsFee });
+
+				return ([ID, Issuer, Brand, SixID].includes(entityProperty) || number.includes(entityProperty) || entityProperty === "*");
+
 			});
 
+			if (!applicableSpecs?.length) applicableSpecs = genericPaymentType;
+
+			applicableSpecs = applicableSpecs?.filter(spec => {
+				const [, , feeLocale] = spec.trim().split(":")[0].split(" ");
+				const locale = Country === LOCAL_COUNTRY ? "LOCL" : "INTL"
+				return feeLocale === locale || feeLocale === "*";
+			});
+
+			for (const spec of applicableSpecs) {
+				let numberOfAskteris = -1;
+				if ((spec.split("*").length - 1) > numberOfAskteris) {
+					numberOfAskteris = spec.split("*").length - 1;
+					mostSpecificSpec = spec;
+				}
+			}
+
+			return ComputeService.calculate(mostSpecificSpec, { Amount, BearsFee });
 		} catch (error) {
 			throw error;
 		}
