@@ -5,7 +5,7 @@
 
 const ApiResponser = require("../../utils/ApiResponser"),
       Response = require("../../utils/constants/Response"),
-      FscService = require("../services/fcs");
+      FcsService = require("../services/fcs");
 
 
 /**
@@ -23,7 +23,7 @@ module.exports = class FcsController {
     try {
       const { FeeConfigurationSpec } = req.body;
 
-      await FscService.create(FeeConfigurationSpec)
+      await FcsService.create(FeeConfigurationSpec)
 
       return ApiResponser.successResponse(
         res, 
@@ -51,7 +51,7 @@ module.exports = class FcsController {
     try {
       const { Amount, Customer: { BearsFee }, Currency, PaymentEntity } = req.body;
 
-      const transactionFee = await FscService.compute({ PaymentEntity, BearsFee, Currency, Amount });
+      const transactionFee = await FcsService.compute({ PaymentEntity, BearsFee, Currency, Amount });
 
       return ApiResponser.successResponse(
         res, 

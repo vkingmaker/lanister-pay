@@ -14,7 +14,7 @@ module.exports = class FcsService {
 	 */
 	static async create(FeeConfigurationSpec) {
 		try {
-			const fcsArr = FeeConfigurationSpec.split('\n');
+			const fcsArr = FeeConfigurationSpec.trim().split('\n');
 			let allowedCurrencies = [],
 				availableTypesOfPayment = {};
 
