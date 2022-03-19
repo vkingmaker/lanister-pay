@@ -73,7 +73,7 @@ module.exports = class FcsService {
 						genericPaymentType = global['*'];
 
 			if (!allowedCurrency.includes(`${Currency}`)) throw {
-				message: `No fee configuration for ${Currency} transactions`,
+				message: `No fee configuration for ${Currency} transactions.`,
 				statusCode: Response.HTTP_UNPROCESSABLE_ENTITY
 			};
 
