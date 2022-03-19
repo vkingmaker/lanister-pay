@@ -2,7 +2,7 @@
 Lannister Pay is a Nigerian Naira (NGN) implementation of a fee processing service for a fictional Payment Processor (LannisterPay). A custom fee configuration spec is sent to `/fee` endpoint to describe applicable fees which enables the application compute the `/compute-transaction-fee` to compute a corresponding charges for a users transaction.
 
 ### To test the application (Locally)
-- Pull the project from the remote repository by running `<>`
+- Pull the project from the remote repository by running `git clone git@github.com:vkingmaker/lanister-pay.git`
 - Open the project with your favourite code editor.
 - install `node packages` by running `npm i` or `yarn install` on your terminal at the root of the projects folder
 - Run `npm run dev` or `npm run start` to start up the server. (You might need to install redis globaly if you haven't already)
