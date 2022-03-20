@@ -1,5 +1,5 @@
 # Lannister Pay
-Lannister Pay is a Nigerian Naira (NGN) implementation of a fee processing service for a fictional Payment Processor (LannisterPay). A custom fee configuration spec is sent to `/fee` endpoint to describe applicable fees which enables the application compute the `/compute-transaction-fee` to compute a corresponding charges for a users transaction.
+Lannister Pay is a Nigerian Naira (NGN) implementation of a fee processing service for a fictional Payment Processor (LannisterPay). A custom fee configuration spec is sent to `/fees` endpoint to describe applicable fees which enables the application compute the `/compute-transaction-fee` to compute a corresponding charges for a users transaction.
 
 ### To test the application (Locally)
 - Pull the project from the remote repository by running `git clone git@github.com:vkingmaker/lanister-pay.git`
