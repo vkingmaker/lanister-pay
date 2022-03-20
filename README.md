@@ -4,6 +4,7 @@ Lannister Pay is a Nigerian Naira (NGN) implementation of a fee processing servi
 ### To test the application (Locally)
 - Pull the project from the remote repository by running `git clone git@github.com:vkingmaker/lanister-pay.git`
 - Open the project with your favourite code editor.
+- Rename `.env.example` file at the root folder to `.env`
 - install `node packages` by running `npm i` or `yarn install` on your terminal at the root of the projects folder
 - Run `npm run dev` or `npm run start` to start up the server. (You might need to install redis globaly if you haven't already)
 - Test using any API application tester you are most comfortable with by call the endpoints below.
