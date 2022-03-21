@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon bin/www",
     "start": "node bin/www",
-    "test": "jest --watch"
+    "test": "jest --watchAll"
   },
   "jest": {
     "testEnvironment": "node"
