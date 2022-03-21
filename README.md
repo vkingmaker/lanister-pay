@@ -24,7 +24,7 @@ Lannister Pay is a Nigerian Naira (NGN) implementation of a fee processing servi
 ```
 #### Expected response
 ```
-HTTP 200 OK
+HTTP 200 OK 
 {
   "status": "ok"
 }
