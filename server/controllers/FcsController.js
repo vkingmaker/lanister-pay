@@ -29,7 +29,7 @@ module.exports = class FcsController {
         res, 
         undefined, 
         'ok',
-        Response.HTTP_CREATED
+        Response.HTTP_OK
       );
 
     } catch (error) {
