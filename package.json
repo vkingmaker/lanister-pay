@@ -6,10 +6,20 @@
   "scripts": {
     "dev": "nodemon bin/www",
     "start": "node bin/www",
-    "test": "jest --watchAll"
+    "test": "jest",
+    "test:dev": "jest --watchAll"
   },
   "jest": {
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "./server/**"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "lines": 90
+      }
+    }
   },
   "keywords": [],
   "author": "",
