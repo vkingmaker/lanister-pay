@@ -1,9 +1,9 @@
 {
   "environments": {
     "test": {
-			"env": {
-        "PORT": 8000
-      }
+			"script": {
+				"test": "npm test -- --coverage"
+			}
     }
   }
 }
