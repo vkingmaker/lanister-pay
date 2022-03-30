@@ -99,13 +99,7 @@ module.exports = class FcsService {
 				return feeLocale === locale || feeLocale === "*";
 			});
 
-			for (const spec of applicableSpecs) {
-				let numberOfAskteris = -1;
-				if ((spec.split("*").length - 1) > numberOfAskteris) {
-					numberOfAskteris = spec.split("*").length - 1;
-					mostSpecificSpec = spec;
-				}
-			}
+			mostSpecificSpec = applicableSpecs.sort((a,b) => (a.split("*").length - 1) - (b.split("*").length - 1))[0];
 
 			return ComputeService.calculate(mostSpecificSpec, { Amount, BearsFee });
 		} catch (error) {
